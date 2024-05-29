@@ -7,6 +7,7 @@
   <title>DISCORD CONTACT FORM</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11" rel="stylesheet">
   <style>
     body {
       background-color: #2C2F33;
@@ -57,6 +58,10 @@
       background-color: #373B3E !important;
       border-color: #373B3E !important;
     }
+
+    .cooldown-info {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -79,12 +84,45 @@
         <label for="messageInput" class="form-label">Message:</label>
         <textarea class="form-control" id="messageInput" rows="3" required></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">SEND</button>
-      <a href="https://nahuelrodriguez.com" class="btn btn-secondary ms-2">Cancel</a>
+      <button type="submit" class="btn btn-primary" id="sendButton" onmouseover="showBlockedIcon()" onmouseout="hideBlockedIcon()">SEND</button>
+      <span class="cooldown-info" id="cooldownInfo"></span>
     </form>
   </div>
   
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
+    function setCooldownTimer() {
+      const cooldownDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      const lastMessageTime = localStorage.getItem('lastMessageTime');
+
+      if (lastMessageTime) {
+        const elapsedTime = Date.now() - parseInt(lastMessageTime, 10);
+        const remainingTime = cooldownDuration - elapsedTime;
+
+        if (remainingTime > 0) {
+          const cooldownInterval = setInterval(() => {
+            const hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((remainingTime / (1000 * 60)) % 60);
+            const seconds = Math.floor((remainingTime / 1000) % 60);
+
+            document.getElementById('cooldownInfo').textContent = `You can send another message after ${hours} hrs ${minutes} mins ${seconds} secs`;
+
+            remainingTime -= 1000;
+
+            if (remainingTime < 0) {
+              clearInterval(cooldownInterval);
+              document.getElementById('sendButton').disabled = false;
+              document.getElementById('cooldownInfo').textContent = '';
+            }
+          }, 1000);
+
+          document.getElementById('sendButton').disabled = true;
+        }
+      }
+    }
+
+    setCooldownTimer();
+
     async function sendContact(event) {
       event.preventDefault();
 
@@ -101,38 +139,8 @@
           return 'Unknown';
         });
 
-      function setCookie(name, value, days) {
-        var expires = "";
-        if (days) {
-          var date = new Date();
-          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-          expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/";
-      }
-
-      function getCookie(name) {
-        var nameEQ = name + "=";
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0) === ' ') {
-            c = c.substring(1, c.length);
-          }
-          if (c.indexOf(nameEQ) === 0) {
-            return c.substring(nameEQ.length, c.length);
-          }
-        }
-        return null;
-      }
-
-      var userId = getCookie("userId");
-      if (!userId) {
-        userId = Date.now().toString();
-        setCookie("userId", userId, 365);
-      }
-
-      console.log("User ID: " + userId);
+      const userId = localStorage.getItem("userId") || Date.now().toString();
+      localStorage.setItem("userId", userId);
 
       const userAgent = navigator.userAgent;
       const language = navigator.language;
@@ -141,7 +149,6 @@
       const dateTime = new Date().toLocaleString();
       const screenResolution = `${window.screen.width}x${window.screen.height}`;
       const deviceName = getDeviceName(userAgent);
-
       const browser = getBrowser(userAgent);
 
       const webhookBody = {
@@ -180,15 +187,29 @@
       })
       .then(response => {
         if (response.ok) {
-          alert('Message sent successfully.');
-          window.location.href = 'https://discord.com/';
+          Swal.fire({
+            icon: 'success',
+            title: 'Message sent successfully.',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          localStorage.setItem('lastMessageTime', Date.now().toString());
+          setCooldownTimer();
         } else {
-          alert('An unknown error occurred on the server.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'An unknown error occurred on the server.'
+          });
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('An unknown error occurred on the server.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'An unknown error occurred on the server.'
+        });
       });
     }
 
@@ -228,29 +249,7 @@
 
     function getDeviceName(userAgent) {
       const deviceKeywords = [
-        { keyword: 'SM-G532M', name: 'Samsung Galaxy J2 Prime' },
-        { keyword: 'M2010J19SL', name: 'Xiaomi Redmi 9T' },
-        { keyword: 'moto g (8) power', name: 'Motorola Moto G8 Power' },
-        { keyword: 'CPH2207', name: 'OPPO Find X3 Neo' },
-        { keyword: 'sm-a546b', name: 'Samsung Galaxy A54' },
-        { keyword: 'RMX1971', name: 'Realme 5 Pro' },
-        { keyword: 'RMX1921', name: 'Realme XT' },
-        { keyword: 'MAR-LX1A', name: 'Huawei P30 Lite' },
-        { keyword: 'X671B', name: 'Infinix Note 12 Pro 5G' },
-        { keyword: 'SM-A705FN', name: 'Samsung Galaxy A70' },
-        { keyword: 'M2101K7BNY', name: 'Xiaomi Redmi Note 10S' },
-        { keyword: 'Pixel 3a', name: 'Google Pixel 3A' },
-        { keyword: 'SM-A146P', name: 'Samsung Galaxy A14 5G' },
-        { keyword: "iPhone13,4", name: "iPhone 13 Pro" },
-        { keyword: "Pixel 6 Pro", name: "Google Pixel 6 Pro" },
-        { keyword: "OnePlus9T", name: "OnePlus 9T" },
-        { keyword: "Redmi Note 11", name: "Xiaomi Redmi Note 11" },
-        { keyword: "Galaxy Z Fold 3", name: "Samsung Galaxy Z Fold 3" },
-        { keyword: "Sony Xperia 5 III", name: "Sony Xperia 5 III" },
-        { keyword: "LG Velvet 2", name: "LG Velvet 2" },
-        { keyword: "ASUS ROG Phone 5", name: "ASUS ROG Phone 5" },
-        { keyword: "iPad Pro 12.9 (2023)", name: "iPad Pro 12.9 (2023)" },
-        { keyword: "Mi 11 Lite", name: "Xiaomi Mi 11 Lite" },
+        // Add your device keywords here
       ];
 
       for (const device of deviceKeywords) {
@@ -269,6 +268,20 @@
       const gpu = gl.getParameter(extension.UNMASKED_RENDERER_WEBGL);
 
       return gpu || 'Unknown';
+    }
+
+    function showBlockedIcon() {
+      const sendButton = document.getElementById('sendButton');
+      if (sendButton.disabled) {
+        sendButton.innerHTML = "&#128683;"; // Blocked icon
+      }
+    }
+
+    function hideBlockedIcon() {
+      const sendButton = document.getElementById('sendButton');
+      if (sendButton.disabled) {
+        sendButton.innerHTML = "SEND";
+      }
     }
   </script>
 </body>
