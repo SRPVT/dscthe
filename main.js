@@ -3,8 +3,8 @@ document.getElementById('disableAnim').onclick = function() {
   body.classList.toggle('disableAnimation');
   console.log(this.innerText);
   if (this.innerText === 'Disable Animations') {
-    this.innerText = 'Enable Animations';
+    this.innerText = 'Disable Animations';
   } else {
-    this.innerText = 'Disable Animations'
+    this.innerText = 'Enable Animations'
   }
 }
