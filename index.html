@@ -72,3 +72,46 @@
      <script src='main.js'></script>
   </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Include SweetAlert CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Include SweetAlert JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</head>
+<body>
+
+<script>
+  $(document).ready(function(){
+    // Detect if the user is on a mobile device
+    function isMobileDevice() {
+      return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+    }
+
+    // If user is on a mobile device, show alert
+    if(isMobileDevice()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'HEY FRIEND!',
+        text: 'This page looks more beautiful if you enable desktop mode😊',
+        showCloseButton: false,
+        showCancelButton: false,
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+        allowOutsideClick: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // User clicked OK, do something if needed
+        }
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
