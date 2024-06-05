@@ -90,11 +90,11 @@
   $(document).ready(function(){
     // Detect if the user is on a mobile device
     function isMobileDevice() {
-      return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+      return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
     // If user is on a mobile device, show alert
-    if(isMobileDevice()) {
+    if (isMobileDevice()) {
       Swal.fire({
         icon: 'info',
         title: 'HEY FRIEND!',
@@ -112,6 +112,9 @@
     }
   });
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
