@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta name="author" content="Amardeep Kesharwani" >
-<title>Skibidi quiz</title>
+<title>Skibidi quiz beta</title>
 <link href="https://fonts.googleapis.com/css?family=Julius+Sans+One|Google Sans" rel="stylesheet">
 </head>
 <body>
